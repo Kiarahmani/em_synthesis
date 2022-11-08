@@ -16,7 +16,7 @@ We now define a function to generate trajectories. This generator function is de
 
 The combination of F_core and M, allows us to start from initial SV values,
 apply F_core and M successively, to generate new SV. The trajectory is just
-the sequence of SV×HA values starting from time=0 to time=T (alternative, we
+the sequence of SV×HA values starting from time=0 to time=T (alternatively, we
 can think about it as function from time to SV×HA)
 
 !! Assuming that F_core is deterministic, we only get one trajectory given
