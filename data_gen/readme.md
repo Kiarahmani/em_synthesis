@@ -30,13 +30,13 @@ transitions occur.
  
 
 
-# COMMENTS:
-# A trajectory object should have pretty_print() function and a save(file_name) function
-# As an optional feature, we can plot each trajectory 
-# we can call generate function iteratively, to generate different trajectories of the same robot. The trajectories will differ in the timing of HA transitions. 
+### COMMENTS:
+- A trajectory object should have pretty_print() function and a save(file_name) function
+- As an optional feature, we can plot each trajectory 
+- we can call generate function iteratively, to generate different trajectories of the same robot. The trajectories will differ in the timing of HA transitions. 
 
 
-# how to run:
+### how to run:
 todo
 
 
