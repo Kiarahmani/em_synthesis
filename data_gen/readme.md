@@ -11,13 +11,13 @@ A trajectory (implemented as a stand alone object) is defined over time
 	
 We now define a function to generate trajectories. This generator function is defined using:
   1- A core function, which given the values for state variables and
-     current high-level action, returns the next high-level action, i.e. F_core: (SV*HA)->HA'
+     current high-level action, returns the next high-level action, i.e. F_core: (SV×HA)->HA'
   2- A motor model M is used to captures how a chosen HA affects the SV in the next time step 
 
 The combination of F_core and M, allows us to start from initial SV values,
 apply F_core and M successively, to generate new SV. The trajectory is just
-the sequence of SV*HA values starting from time=0 to time=T (alternative, we
-can think about it as function from time to SV*HA)
+the sequence of SV×HA values starting from time=0 to time=T (alternative, we
+can think about it as function from time to SV×HA)
 
 !! Assuming that F_core is deterministic, we only get one trajectory given
 the values for constants. However, we need to generate, *a multiset* of
