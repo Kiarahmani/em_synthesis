@@ -8,7 +8,7 @@ This generator function takes in two additional parameters *(which are not used 
 1. a **ground-truth ASP** $\pi_g: H \times O \rightarrow H$, which defines the expected behavior of the robot.
    1. If $\pi_g$ is deterministic, we get a single, noise-free trajectory that we call the **ground-truth trajectory**.
    2. When $\pi_g$ is probabilistic (we inject noise into the transitions), we get a (multi-)set of trajectories that differ slightly from the ground-truth trajectory.
-2. a **physics model** $\psi: L \rightarrow O$, which captures how a given low-level action affects the observed variables in the next time step.
+2. a **physics model** $\psi: L \times O \rightarrow O$, which captures how a given low-level action affects the observed variables in the next time step.
 
 Given some initial state, we compute the demonstration by successively calling $\pi_d$, $\phi$, and $\psi$ for each time step.
 
