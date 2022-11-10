@@ -1,8 +1,16 @@
 
 #include <vector>
+#include <string>
 using namespace std;
 
 
+// each Traj represents a demonstration that 
+// describes a robot (HA x O) over T timesteps
+// HA: high-level action
+// LA: low-level action
+// S: state
+// O: observation = LA x S
+// RS: robot state = HA x LA x S = HA x O
 
 
 
@@ -12,33 +20,21 @@ enum HA {
   DEC
 };
 
-struct LA {
-  a;
-}
-
-struct S {
-  x;
-  v;
-}
+struct O {
+  double x;
+  double v;
+  double a;
+};
 
 struct RS {
   HA ha;
-  LA la;
-  S s;
-}
+  O o;
+};
 
 
-// each Traj represents a demonstration that 
-// describes a robot (HA x O) over a period of time T
-// HA: high-level action
-// LA: low-level action
-// S: state
-// O: observation = LA x S
-// RS: robot state = HA x LA x S
 struct Traj {
   int T;
   vector<HA> ha_seq;
-  vector<LA> la_seq;
   vector<O> o_seq;
 };
 
@@ -53,24 +49,22 @@ struct Cons {
   double x_target;
   int T;
   double t_step;
-}
+};
 
 
 
 class Generator {
 
-  RS rs_0;      // initial values
-  Cons cons;
+  public:
 
   HA gt_asp(RS rs_prev, Cons cons);
-  LA motor_model(RS rs_prev, Cons cons);
-  S phys_model(RS rs_prev, Cons cons);
+  O combined_model(RS rs_prev, Cons cons);    // motor model + physics model
 
-  Generator();
-  Traj gen_traj();
-  void pretty_print();
+  Traj gen_traj(RS rs_0, Cons cons);
+  void pretty_print(Traj traj);
+  void save_to_file(Traj traj, string fn);
 
-}
+};
 
 
 
