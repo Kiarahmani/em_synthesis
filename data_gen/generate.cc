@@ -4,6 +4,10 @@
 
 using namespace constants;
 
+/*
+ * User-defined, simulation-specific
+ */
+
 Label Generator::true_asp(SystemState prev_ss) {
     Obs obs = prev_ss.obs;
 
@@ -60,11 +64,45 @@ Obs Generator::world_model(SystemState state) {
     return { new_x, new_v, new_a };
 }
 
-
-// Robot has reached target and is at rest. End simulation.
+// Helper method: robot has reached target and is at rest. End simulation.
 bool finished(Obs obs){
     return obs.x >= target || obs.v < 0;
 }
+
+
+void Generator::print(Trajectory traj) {
+    
+    for (int i = 1; i < traj.T; i++) {
+        if(traj.label_seq[i] != traj.label_seq[i-1]){
+            cout << str(traj.label_seq[i-1]) << " --> " << str(traj.label_seq[i]) << " at time " << i * t_step << "\n";
+        }
+    }
+    cout << "\n";
+}
+
+void Generator::save_to_file(Trajectory traj, string fn) {
+    ofstream csvFile;
+    csvFile.open(fn);
+    csvFile << fixed << setprecision(4) << setfill(' ') << setw(10);
+    csvFile << "t, x, v, a, label\n" << "\n";
+
+    for (int i = 0; i < traj.T; i++) {
+        csvFile << i * t_step << ", ";
+        csvFile << traj.obs_seq[i].x << ", ";
+        csvFile << traj.obs_seq[i].v << ", ";
+        csvFile << traj.obs_seq[i].a << ", ";
+        csvFile << str(traj.label_seq[i]) << "\n";
+    }
+
+    csvFile.close();
+}
+
+
+
+
+/*
+ * Simulation: all implementation-specific details abstracted away
+ */
 
 Trajectory Generator::gen_trajectory(SystemState init_state, int T) {
     SystemState state = init_state;
@@ -86,40 +124,20 @@ Trajectory Generator::gen_trajectory(SystemState init_state, int T) {
     return traj;
 }
 
-void Generator::print(Trajectory traj) {
-    if(DEBUG){
-        cout << "t\tHA\tx\tv\ta\n";
-        for (int i = 0; i < traj.T; i++) {
-            cout << i * t_step << "\t";
-            cout << str(traj.label_seq[i]) << "\t";
-            cout << traj.obs_seq[i].x << "\t";
-            cout << traj.obs_seq[i].v << "\t";
-            cout << traj.obs_seq[i].a << "\t";
-            cout << endl;
-        }
-    }
-    
-    for (int i = 1; i < traj.T; i++) {
-        if(traj.label_seq[i] != traj.label_seq[i-1]){
-            cout << str(traj.label_seq[i-1]) << " --> " << str(traj.label_seq[i]) << " at time " << i * t_step << "\n";
-        }
-    }
-    cout << "\n";
-}
-
-void Generator::save_to_file(Trajectory traj, string fn) {}
-
 int main() {
-    Label init_label = ACC;
-    Obs init_obs = {0, 0, 0};
+    Label init_label{};
+    Obs init_obs{};
     SystemState init_ss = {init_label, init_obs};
     int T = 100;
 
     Generator gen;
 
+    cout << "--------------Simulation---------------\n";
+    cout << "Running 1-D kinematic car simulation:\n";
     for(int i = 0; i < 10; i++){
         Trajectory traj = gen.gen_trajectory(init_ss, T);
         gen.print(traj);
+        gen.save_to_file(traj, "out/gen" + to_string(i) + ".csv");
     }
 
     return 0;
