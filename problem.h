@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#define DEBUG false
+
 /*
  * User defined problem domain
  */

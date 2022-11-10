@@ -7,15 +7,35 @@ using namespace constants;
 Label Generator::true_asp(SystemState prev_ss) {
     Obs obs = prev_ss.obs;
 
-    bool cond1 = obs.v - max_velocity >= 0;
-    bool cond2 = (target - obs.x) - dist_traveled(obs.v, deceleration) <= 0;
+    double expression1 = obs.v - max_velocity;                                  // is at max velocity (can no longer accelerate)
+    double expression2 = target - obs.x - dist_traveled(obs.v, deceleration);   // needs to decelerate or else it will pass target
 
-    if (cond2)
-        return DEC;
-    else if (prev_ss.label == ACC && cond1)
-        return CON;
-    else
-        return prev_ss.label;
+    // Deterministic
+    // bool cond1 = expression1 >= 0;
+    // bool cond2 = expression2 < zero;
+
+    // Probabilistic
+    bool cond1 = flip(logistic(0, 0.4, expression1));
+    bool cond2 = flip(logistic(0, -0.3, expression2));
+
+    if(prev_ss.label == ACC){
+        if(cond1 && !cond2) return CON;
+        else if(cond2) return DEC;
+        else return ACC;
+    }
+    else if(prev_ss.label == CON){
+        if(false) return ACC;
+        else if(cond2) return DEC;
+        else return CON;
+    }
+    else if(prev_ss.label == DEC){
+        if(false) return ACC;
+        else if(false) return CON;
+        else return DEC;
+    }
+
+    printf("Impossible state reached\n");
+    return (Label) -1;
 }
 
 Obs Generator::world_model(SystemState state) {
@@ -43,7 +63,7 @@ Obs Generator::world_model(SystemState state) {
 
 // Robot has reached target and is at rest. End simulation.
 bool finished(Obs obs){
-    return obs.v < 0 && obs.x >= target;
+    return obs.x >= target || obs.v < 0;
 }
 
 Trajectory Generator::gen_trajectory(SystemState init_state, int T) {
@@ -67,15 +87,24 @@ Trajectory Generator::gen_trajectory(SystemState init_state, int T) {
 }
 
 void Generator::print(Trajectory traj) {
-    cout << "t\tHA\tx\tv\ta" << endl;
-    for (int i = 0; i < traj.T; i++) {
-        cout << i * t_step << "\t";
-        cout << str(traj.label_seq[i]) << "\t";
-        cout << traj.obs_seq[i].x << "\t";
-        cout << traj.obs_seq[i].v << "\t";
-        cout << traj.obs_seq[i].a << "\t";
-        cout << endl;
+    if(DEBUG){
+        cout << "t\tHA\tx\tv\ta\n";
+        for (int i = 0; i < traj.T; i++) {
+            cout << i * t_step << "\t";
+            cout << str(traj.label_seq[i]) << "\t";
+            cout << traj.obs_seq[i].x << "\t";
+            cout << traj.obs_seq[i].v << "\t";
+            cout << traj.obs_seq[i].a << "\t";
+            cout << endl;
+        }
     }
+    
+    for (int i = 1; i < traj.T; i++) {
+        if(traj.label_seq[i] != traj.label_seq[i-1]){
+            cout << str(traj.label_seq[i-1]) << " --> " << str(traj.label_seq[i]) << " at time " << i * t_step << "\n";
+        }
+    }
+    cout << "\n";
 }
 
 void Generator::save_to_file(Trajectory traj, string fn) {}
@@ -87,8 +116,11 @@ int main() {
     int T = 100;
 
     Generator gen;
-    Trajectory traj = gen.gen_trajectory(init_ss, T);
-    gen.print(traj);
+
+    for(int i = 0; i < 10; i++){
+        Trajectory traj = gen.gen_trajectory(init_ss, T);
+        gen.print(traj);
+    }
 
     return 0;
 }
